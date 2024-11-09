@@ -24,8 +24,9 @@ class Viaje(models.Model):
 
     def calcular_costo(self):
         costo = 15.0
-        if self.multa:
-            costo += self.multa.costo
+        multa = getattr(self, 'multa', None)
+        if multa:
+            costo += multa.costo
         return costo
 
     def __str__(self):

@@ -25,12 +25,12 @@ def populate_db():
         },
         {
             "name": "chespirito 200",
-            "posicion": {"x": 3, "y": 5},
+            "posicion": {"x": 3, "y": 3},
             "capacidad": 4
         },
         {
             "name": "monsenieur larumbe 43",
-            "posicion": {"x": 6, "y": 2},
+            "posicion": {"x": 4, "y": 2},
             "capacidad": 3
         }
     ]

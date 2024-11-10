@@ -10,7 +10,7 @@ class TestViaje:
     def test_viaje_creation(self, viaje):
         assert viaje.estado_inicial == CondicionBicicleta.EXCELENTE.name
         assert viaje.estado_final is None
-        assert viaje.usuario.nombre == "test"
+        assert viaje.usuario.nombre == "badminton"
         assert viaje.bicicleta.estado == CondicionBicicleta.EXCELENTE.name
 
     def test_calcular_costo(self, viaje):

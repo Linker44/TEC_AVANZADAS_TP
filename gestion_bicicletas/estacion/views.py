@@ -1,4 +1,4 @@
-from rest_framework import viewsets, status
+from rest_framework import viewsets, status, mixins
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from estacion.models import Estacion
@@ -11,7 +11,7 @@ from django.utils import timezone
 # Create your views here.
 
 
-class EstacionViewSet(viewsets.ModelViewSet):
+class EstacionViewSet(viewsets.GenericViewSet, mixins.ListModelMixin, mixins.RetrieveModelMixin):
     queryset = Estacion.objects.all()
     serializer_class = EstacionSerializer
 
@@ -31,7 +31,7 @@ class EstacionViewSet(viewsets.ModelViewSet):
 
         bicicleta = estacion.bicicleta_disponible()
         if not bicicleta:
-            return Response(data={'data': 'Esta Estacion no tiene bicicletas disponibles'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(data={'error': 'Esta Estacion no tiene bicicletas disponibles'}, status=status.HTTP_400_BAD_REQUEST)
 
         bicicleta.estacion = None
         bicicleta.save()
@@ -45,6 +45,7 @@ class EstacionViewSet(viewsets.ModelViewSet):
         dni = request.data.get('dni')
         descripcion = request.data.get('descripcion')
         estado = request.data.get('estado')
+        id_bici = request.data.get('bicicleta')
 
         try:
             usuario = Usuario.objects.get(dni=dni)
@@ -55,10 +56,18 @@ class EstacionViewSet(viewsets.ModelViewSet):
         if viaje is None:
             return Response(data={'error': 'El usuario no tiene ningun viaje en curso'}, status=status.HTTP_400_BAD_REQUEST)
 
+        try:
+            bicicleta = Bicicleta.objects.get(id=id_bici)
+        except:
+            return Response(data={'error': 'La bicicleta no pertenece al sistema'}, status=status.HTTP_400_BAD_REQUEST)
+
+        if viaje.bicicleta != bicicleta:
+            return Response(data={'error': 'La bicicleta no pertenece al usuario'}, status=status.HTTP_400_BAD_REQUEST)
+
         if not estacion.espacios_disponibles():
             estacion_cercana = estacion.sugerir_estacion_cercana()
             if estacion_cercana:
-                return Response(data={'data': f'Esta estacion se encuentra sin espacios disponibles, referirse a {estacion_cercana}'}, status=status.HTTP_400_BAD_REQUEST)
+                return Response(data={'error': f'Esta estacion se encuentra sin espacios disponibles, referirse a {estacion_cercana}'}, status=status.HTTP_400_BAD_REQUEST)
 
         try:
             condicion = CondicionBicicleta[estado]

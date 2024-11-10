@@ -6,14 +6,6 @@ from viajes.models import Viaje
 
 
 @pytest.fixture
-def usuario():
-    usuario = Usuario.objects.create(
-        nombre="test", apellido="user", dni="40243756")
-    yield usuario
-    usuario.delete()
-
-
-@pytest.fixture
 def viaje(usuario, bicicleta):
     viaje = Viaje.objects.create(
         estado_inicial=CondicionBicicleta.EXCELENTE.name,
@@ -22,3 +14,8 @@ def viaje(usuario, bicicleta):
     )
     yield viaje
     viaje.delete()
+
+
+@pytest.fixture
+def viaje_curso(usuario, bicicleta):
+    return Viaje.objects.create(usuario=usuario, bicicleta=bicicleta, estado_inicial="EXCELENTE")

@@ -1,5 +1,5 @@
 import pytest
-from estacion.models import Estacion, Ubicacion
+from estacion.models import Estacion
 from django.core.exceptions import ValidationError
 pytestmark = pytest.mark.django_db
 
@@ -47,12 +47,9 @@ class TestEstacion:
         estacion.delete()
 
     def test_sugerir_estacion_cercana(self):
-        ubicacion_1 = Ubicacion.objects.create(
-            x=1, y=2, name="La paternal 229")
-        ubicacion_2 = Ubicacion.objects.create(
-            x=5, y=3, name="Francisco Diaz 23")
-        ubicacion_3 = Ubicacion.objects.create(
-            x=2, y=2, name="Coronel marcos 34")
+        ubicacion_1 = {"x": 1, "y": 2}
+        ubicacion_2 = {"x": 5, "y": 3}
+        ubicacion_3 = {"x": 2, "y": 2}
 
         estacion_1 = Estacion.objects.create(
             id=1, posicion=ubicacion_1, capacidad=2)
@@ -68,15 +65,13 @@ class TestEstacion:
         estacion_3.delete()
 
     def test_sugerir_estacion_cercana_con_espacio_disponible(self, bicicleta, bicicleta_malo):
-        ubicacion_1 = Ubicacion.objects.create(
-            x=1, y=2, name="La paternal 229")
-        ubicacion_2 = Ubicacion.objects.create(
-            x=5, y=3, name="Francisco Diaz 23")
-        ubicacion_3 = Ubicacion.objects.create(
-            x=2, y=2, name="Coronel marcos 34")
+        ubicacion_1 = {"x": 1, "y": 2}
+        ubicacion_2 = {"x": 5, "y": 3}
+        ubicacion_3 = {"x": 2, "y": 2}
 
         estacion_1 = Estacion.objects.create(
             id=1, posicion=ubicacion_1, capacidad=2)
+        print("este es el nombre", estacion_1.name)
         estacion_2 = Estacion.objects.create(
             id=2, posicion=ubicacion_2, capacidad=2)
         # es la estacion mas cercana pero no tiene espacio disponible
@@ -94,10 +89,8 @@ class TestEstacion:
         estacion_3.delete()
 
     def test_sugerir_estacion_cercana_none(self, bicicleta, bicicleta_malo):
-        ubicacion_1 = Ubicacion.objects.create(
-            x=1, y=2, name="La paternal 229")
-        ubicacion_3 = Ubicacion.objects.create(
-            x=2, y=2, name="Coronel marcos 34")
+        ubicacion_1 = {"x": 1, "y": 2}
+        ubicacion_3 = {"x": 2, "y": 2}
 
         estacion_1 = Estacion.objects.create(
             id=1, posicion=ubicacion_1, capacidad=2)

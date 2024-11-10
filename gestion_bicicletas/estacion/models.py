@@ -3,6 +3,7 @@ from django.core.validators import MinValueValidator, MaxValueValidator
 import math
 from bicicletas.estados import CondicionBicicleta
 from datetime import timedelta
+from django.core.exceptions import ValidationError
 # Create your models here.
 
 
@@ -13,20 +14,21 @@ class Multa(models.Model):
         "viajes.Viaje", on_delete=models.CASCADE, related_name="multa")
 
 
-class Ubicacion(models.Model):
-    name = models.CharField(max_length=150)
-    x = models.IntegerField()
-    y = models.IntegerField()
-
-    def __str__(self):
-        return f"{self.name}"
+def validar_posicion(value):
+    if not isinstance(value, dict):
+        raise ValidationError("La posicion debe ser un diccionario")
+    if "x" not in value or "y" not in value:
+        raise ValidationError("La posicion debe contener los ejes 'x' y 'y'")
+    if not isinstance(value["x"], int) or not isinstance(value["y"], int):
+        raise ValidationError("'x' and 'y' deben ser integers.")
 
 
 class Estacion(models.Model):
+    name = models.CharField(max_length=100, blank=False, null=False)
     capacidad = models.IntegerField(
         validators=[MinValueValidator(0), MaxValueValidator(20)]
     )
-    posicion = models.OneToOneField(Ubicacion, on_delete=models.CASCADE)
+    posicion = models.JSONField(validators=[validar_posicion])
 
     def bicicleta_disponible(self):
         return self.bicicletas.all().exclude(estado=CondicionBicicleta.ROTA.name).first()
@@ -35,8 +37,8 @@ class Estacion(models.Model):
         return (self.capacidad - len(self.bicicletas.all())) > 0
 
     def _distancia_hasta(self, otra_estacion):
-        x_diff = self.posicion.x - otra_estacion.posicion.x
-        y_diff = self.posicion.y - otra_estacion.posicion.y
+        x_diff = self.posicion["x"] - otra_estacion.posicion["x"]
+        y_diff = self.posicion["y"] - otra_estacion.posicion["y"]
         return math.sqrt(x_diff**2 + y_diff**2)
 
     def sugerir_estacion_cercana(self):
@@ -80,4 +82,4 @@ class Estacion(models.Model):
         return Multa.objects.create(costo=costo, descripcion=descripcion, viaje=viaje)
 
     def __str__(self):
-        return f"Estacion {self.posicion.name}"
+        return f"Estacion {self.name}"

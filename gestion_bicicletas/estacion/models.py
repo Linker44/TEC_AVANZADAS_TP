@@ -72,11 +72,11 @@ class Estacion(models.Model):
 
             if duracion_viaje > timedelta(hours=2):
                 costo += 30
+                descripcion += ' La bicicleta no se ha entregado dentro del horario solicitado.'
 
         if costo == 0:
             return None
-        bicicleta.estacion = self
-        bicicleta.save()
+
         return Multa.objects.create(costo=costo, descripcion=descripcion, viaje=viaje)
 
     def __str__(self):

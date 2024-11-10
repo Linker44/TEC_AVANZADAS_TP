@@ -12,7 +12,9 @@ class Viaje(models.Model):
     )
     estado_final = models.CharField(
         max_length=20,
-        choices=[(state.name, state.value) for state in CondicionBicicleta]
+        choices=[(state.name, state.value) for state in CondicionBicicleta],
+        null=True,
+        blank=True
     )
     horario_partida = models.DateTimeField(auto_now_add=True)
     horario_llegada = models.DateTimeField(null=True, blank=True)

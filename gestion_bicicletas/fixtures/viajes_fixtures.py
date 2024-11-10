@@ -17,7 +17,6 @@ def usuario():
 def viaje(usuario, bicicleta):
     viaje = Viaje.objects.create(
         estado_inicial=CondicionBicicleta.EXCELENTE.name,
-        estado_final=CondicionBicicleta.EXCELENTE.name,
         usuario=usuario,
         bicicleta=bicicleta,
     )

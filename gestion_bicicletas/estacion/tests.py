@@ -127,10 +127,8 @@ class TestEstacion:
 
         multa = viaje.multa
         assert multa is not None
-        assert multa is not None
         assert multa.costo == 300.0
         assert multa.descripcion == "Le falta el manubrio"
         assert viaje.calcular_costo() == 315.0
-        assert bicicleta_rota.estacion == estacion
 
         estacion.delete()

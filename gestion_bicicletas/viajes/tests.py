@@ -9,7 +9,7 @@ class TestViaje:
 
     def test_viaje_creation(self, viaje):
         assert viaje.estado_inicial == CondicionBicicleta.EXCELENTE.name
-        assert viaje.estado_final == CondicionBicicleta.EXCELENTE.name
+        assert viaje.estado_final is None
         assert viaje.usuario.nombre == "test"
         assert viaje.bicicleta.estado == CondicionBicicleta.EXCELENTE.name
 

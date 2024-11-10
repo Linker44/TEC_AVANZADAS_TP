@@ -29,17 +29,18 @@ class Estacion(models.Model):
     posicion = models.OneToOneField(Ubicacion, on_delete=models.CASCADE)
 
     def bicicleta_disponible(self):
-        return self.bicicletas.all().first()
+        return self.bicicletas.all().exclude(estado=CondicionBicicleta.ROTA.name).first()
 
     def espacios_disponibles(self):
         return (self.capacidad - len(self.bicicletas.all())) > 0
 
     def _distancia_hasta(self, otra_estacion):
-        x_diff = self.location.x - otra_estacion.location.x
-        y_diff = self.location.y - otra_estacion.location.y
+        x_diff = self.posicion.x - otra_estacion.posicion.x
+        y_diff = self.posicion.y - otra_estacion.posicion.y
         return math.sqrt(x_diff**2 + y_diff**2)
 
     def sugerir_estacion_cercana(self):
+        """Devuelve la estacion mas cercana que tenga espacios disponibles"""
         estaciones = Estacion.objects.exclude(id=self.id)
         estacion_cercana = None
         menor_distancia = float("inf")
@@ -54,15 +55,16 @@ class Estacion(models.Model):
 
         return estacion_cercana
 
-    def chequear_condicion(self, bicicleta, descripcion, viaje):
+    def chequear_condicion(self, descripcion, viaje):
         costo = 0
+        bicicleta = viaje.bicicleta
 
-        if bicicleta.estado in [CondicionBicicleta.MALO, CondicionBicicleta.ROTA]:
+        if bicicleta.estado in [CondicionBicicleta.MALO.name, CondicionBicicleta.ROTA.name]:
 
-            if bicicleta.estado == CondicionBicicleta.MALO:
+            if bicicleta.estado == CondicionBicicleta.MALO.name:
                 costo += 100.0
 
-            if bicicleta.estado == CondicionBicicleta.ROTA:
+            if bicicleta.estado == CondicionBicicleta.ROTA.name:
                 costo += 300.0
 
         if viaje.horario_llegada and viaje.horario_partida:
@@ -73,5 +75,9 @@ class Estacion(models.Model):
 
         if costo == 0:
             return None
-
+        bicicleta.estacion = self
+        bicicleta.save()
         return Multa.objects.create(costo=costo, descripcion=descripcion, viaje=viaje)
+
+    def __str__(self):
+        return f"Estacion {self.posicion.name}"
